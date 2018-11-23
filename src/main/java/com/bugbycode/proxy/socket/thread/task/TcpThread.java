@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import com.bugbycode.initializer.ListenerService;
+import com.bugbycode.initializer.TcpServerInitializer;
 import com.bugbycode.module.Message;
 import com.bugbycode.proxy.io.read.TcpReadService;
 import com.bugbycode.proxy.io.write.TcpWriteService;
@@ -17,6 +19,8 @@ public class TcpThread implements Runnable {
 	
 	private TcpWriteService tcpWriteService;
 	
+	private TcpServerInitializer initializer;
+	
 	private TransferUtil util;
 	
 	private Socket client;
@@ -25,11 +29,11 @@ public class TcpThread implements Runnable {
 	
 	private OutputStream out = null;
 	
-	public TcpThread(Socket client,TcpReadService tcpReadService,
-			TcpWriteService tcpWriteService) {
+	public TcpThread(Socket client,TcpServerInitializer initializer) {
 		this.client = client;
-		this.tcpReadService = tcpReadService;
-		this.tcpWriteService = tcpWriteService;
+		this.tcpReadService = initializer.getTcpReadService();
+		this.tcpWriteService = initializer.getTcpWriteService();
+		this.initializer = initializer;
 	}
 
 	@Override
@@ -53,7 +57,9 @@ public class TcpThread implements Runnable {
 			out = client.getOutputStream();
 			
 			this.tcpWriteService.setOut(this.out);
-			
+			if(initializer instanceof ListenerService) {
+				((ListenerService)initializer).onFinish();
+			}
 			while(!client.isClosed()) {
 				if(body_len == -1) {
 					if(offset == 0) {
@@ -61,6 +67,9 @@ public class TcpThread implements Runnable {
 						buff = new byte[len];
 					}
 					offset += in.read(buff, offset, len);
+					if(offset == -1) {
+						break;
+					}
 					if(offset == len) {
 						body_len = util.toHH(buff);
 						offset = 0;
@@ -72,6 +81,9 @@ public class TcpThread implements Runnable {
 						len = 32;
 					}
 					offset += in.read(token, offset, len);
+					if(offset == -1) {
+						break;
+					}
 					if(offset == len) {
 						token_len = offset;
 						offset = 0;
@@ -82,6 +94,9 @@ public class TcpThread implements Runnable {
 					}
 					if(body_len > 0) {
 						offset += in.read(buff, offset, body_len);
+						if(offset == -1) {
+							break;
+						}
 					}
 					if(offset == body_len) {
 						Message message = new Message();

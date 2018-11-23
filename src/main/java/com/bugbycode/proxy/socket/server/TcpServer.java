@@ -47,8 +47,7 @@ public class TcpServer {
 				
 				initializer.initializer();
 				
-				TcpThread tcpThread = new TcpThread(client,initializer.getTcpReadService(),
-						initializer.getTcpWriteService());
+				TcpThread tcpThread = new TcpThread(client,initializer);
 				pool.addTask(tcpThread);
 			} catch (IOException e) {
 				e.printStackTrace();

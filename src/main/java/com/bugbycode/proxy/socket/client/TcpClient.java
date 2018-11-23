@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+import com.bugbycode.initializer.ListenerService;
 import com.bugbycode.initializer.TcpServerInitializer;
 import com.bugbycode.module.Message;
 import com.bugbycode.proxy.io.write.TcpWriteService;
@@ -41,14 +42,24 @@ public class TcpClient {
 		if(initializer == null) {
 			throw new IOException("TcpServerInitializer is null.");
 		}
-		this.socket.connect(new InetSocketAddress(host,port), timeout);
-		this.initializer.initializer();
+		
+		try {
+			this.socket.connect(new InetSocketAddress(host,port), timeout);
+			this.initializer.initializer();
+			if(initializer instanceof ListenerService) {
+				((ListenerService)initializer).onSuccess();
+			}
+		}catch (IOException e) {
+			if(initializer instanceof ListenerService) {
+				((ListenerService)initializer).onFailed();
+			}
+			throw e;
+		}
 		this.pool = new ThreadPool(1, 1);
 		this.pool.start();
 		this.pool.waitStart();
 		this.tcpWriteService = initializer.getTcpWriteService();
-		this.pool.addTask(new TcpThread(socket, initializer.getTcpReadService(), 
-				this.tcpWriteService));
+		this.pool.addTask(new TcpThread(socket, initializer));
 		this.isConnected = true;
 	}
 	
