@@ -56,7 +56,6 @@ public class TcpThread implements Runnable {
 					offset += in.read(buff, offset, len);
 					if(offset == len) {
 						body_len = util.toHH(buff);
-						len = body_len;
 						offset = 0;
 					}
 				}else if(type == -1){
@@ -72,12 +71,12 @@ public class TcpThread implements Runnable {
 					}
 				}else{
 					if(offset == 0) {
-						buff = new byte[len];
+						buff = new byte[body_len];
 					}
-					if(len > 0) {
-						offset += in.read(buff, offset, len);
+					if(body_len > 0) {
+						offset += in.read(buff, offset, body_len);
 					}
-					if(offset == len) {
+					if(offset == body_len) {
 						Message message = new Message();
 						message.setData(buff);
 						message.setToken(new String(token));
