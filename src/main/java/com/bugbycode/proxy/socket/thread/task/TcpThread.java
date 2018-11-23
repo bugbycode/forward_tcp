@@ -3,6 +3,7 @@ package com.bugbycode.proxy.socket.thread.task;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 
 import com.bugbycode.module.Message;
@@ -41,7 +42,13 @@ public class TcpThread implements Runnable {
 		byte[] token = new byte[32];
 		int token_len = 0;
 		util = new TransferUtil();
+		
+		InetAddress address = client.getInetAddress();
+		
 		try {
+			
+			this.tcpReadService.onConnection(address);
+			
 			in = client.getInputStream();
 			out = client.getOutputStream();
 			
@@ -93,6 +100,7 @@ public class TcpThread implements Runnable {
 		}catch (Exception e) {
 			e.printStackTrace();
 		} finally {
+			this.tcpReadService.onClose(address);
 			try {
 				if(in != null) {
 					in.close();

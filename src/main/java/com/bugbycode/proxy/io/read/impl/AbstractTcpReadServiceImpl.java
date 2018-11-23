@@ -1,5 +1,7 @@
 package com.bugbycode.proxy.io.read.impl;
 
+import java.net.InetAddress;
+
 import org.json.JSONObject;
 
 import com.bugbycode.module.Authentication;
@@ -16,6 +18,16 @@ public abstract class AbstractTcpReadServiceImpl implements TcpReadService{
 		
 	}
 	
+	@Override
+	public void onConnection(InetAddress address) {
+		
+	}
+
+	@Override
+	public void onClose(InetAddress address) {
+		
+	}
+
 	@Override
 	public void readMessage(TcpWriteService write,Message message) throws Exception {
 		int type = message.getType();
