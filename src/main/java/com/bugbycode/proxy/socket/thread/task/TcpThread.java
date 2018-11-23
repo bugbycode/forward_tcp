@@ -113,7 +113,7 @@ public class TcpThread implements Runnable {
 				}
 			}
 		}catch (Exception e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		} finally {
 			this.tcpReadService.onClose(address);
 			try {
