@@ -34,5 +34,13 @@ public class TcpWriteServiceImpl implements TcpWriteService {
 	final public void setOut(OutputStream out) {
 		this.out = out;
 	}
+	
+	final public void close() {
+		try {
+			this.out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 }
