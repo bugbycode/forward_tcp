@@ -52,6 +52,9 @@ public class ForwardTcpThread extends Thread {
 			
 			while(!client.isClosed()) {
 				len = in.read(buff);
+				if(len == -1) {
+					break;
+				}
 				tcpReadService.readMessage(buff, len);
 			}
 		}catch (Exception e) {
